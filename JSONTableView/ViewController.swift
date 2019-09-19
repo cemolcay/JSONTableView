@@ -7,14 +7,29 @@
 //
 
 import UIKit
+import SwiftyJSON
 
 class ViewController: UIViewController {
+  @IBOutlet weak var tableView: JSONTableView?
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view.
+
+    // Load json
+    guard let ditto = Bundle.main.url(forResource: "ditto", withExtension: "json"),
+      let data = try? Data(contentsOf: ditto),
+      let json = try? JSON(data: data)
+      else { return }
+
+    tableView?.data = json
+    tableView?.reloadData()
   }
 
+  @IBAction func collapseAll() {
+    tableView?.collapseAll()
+  }
 
+  @IBAction func expandAll() {
+    tableView?.expandAll()
+  }
 }
-
