@@ -17,9 +17,12 @@ open class JSONTableViewCell: UIView {
   public var cellStack = UIStackView()
   public var titleLabel = UILabel()
   public var valueLabel = UILabel()
+  public var textStack = UIStackView()
   public var expandButton = UIButton()
   public var expandStack = UIStackView()
   public var bottomLineLayer = CALayer()
+  public var stackViewBottomAnchor = NSLayoutConstraint()
+
   public var canExpand = false
   public var isExpanded = false {
     didSet {
@@ -30,6 +33,11 @@ open class JSONTableViewCell: UIView {
       }
     }
   }
+
+  public var leftPadding: CGFloat = 16
+  public var verticalPadding: CGFloat = 16
+
+  // MARK: Init
 
   public override init(frame: CGRect) {
     super.init(frame: frame)
@@ -43,49 +51,61 @@ open class JSONTableViewCell: UIView {
 
   func commonInit() {
     layer.addSublayer(bottomLineLayer)
+
     addSubview(stackView)
     stackView.axis = .vertical
+    stackView.spacing = 0
     stackView.translatesAutoresizingMaskIntoConstraints = false
-    stackView.leftAnchor.constraint(equalTo: leftAnchor, constant: 16).isActive = true
+    stackView.leftAnchor.constraint(equalTo: leftAnchor, constant: leftPadding).isActive = true
     stackView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
-    stackView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-    stackView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+    stackView.topAnchor.constraint(equalTo: topAnchor, constant: verticalPadding).isActive = true
+    stackViewBottomAnchor = stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
+    stackViewBottomAnchor.constant = -verticalPadding
+    stackViewBottomAnchor.isActive = true
 
     stackView.addArrangedSubview(cellStack)
     cellStack.translatesAutoresizingMaskIntoConstraints = false
-    cellStack.heightAnchor.constraint(equalToConstant: 44).isActive = true
     cellStack.axis = .horizontal
-    cellStack.spacing = 8
-    let titleStack = UIStackView()
-    titleStack.axis = .horizontal
-    titleStack.addArrangedSubview(titleLabel)
-    titleStack.addArrangedSubview(valueLabel)
-    cellStack.addArrangedSubview(titleStack)
+
+    textStack.axis = .horizontal
+    textStack.spacing = 8
+    textStack.alignment = .center
+    titleLabel.textAlignment = .left
+    textStack.addArrangedSubview(titleLabel)
+    textStack.addArrangedSubview(valueLabel)
+
+    cellStack.addArrangedSubview(textStack)
     cellStack.addArrangedSubview(expandButton)
+
     expandButton.translatesAutoresizingMaskIntoConstraints = false
-    expandButton.widthAnchor.constraint(equalToConstant: 22).isActive = true
+    expandButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
+    expandButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
     expandButton.setImage(UIImage(named: "downArrow", in: Bundle(for: JSONTableView.self), compatibleWith: nil), for: .normal)
     expandButton.imageView?.contentMode = .scaleAspectFit
     expandButton.addTarget(self, action: #selector(expandButtonDidPress(sender:)), for: .touchUpInside)
     expandButton.tintColor = .lightGray
 
-    titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-    valueLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-    valueLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
     stackView.addArrangedSubview(expandStack)
+    expandStack.translatesAutoresizingMaskIntoConstraints = false
     expandStack.axis = .vertical
   }
 
+  // MARK: Lifecycle
+
   open override func layoutSubviews() {
     super.layoutSubviews()
-    bottomLineLayer.frame = CGRect(x: 16, y: frame.size.height - 0.5, width: frame.size.width - 16, height: 0.5)
+    bottomLineLayer.frame = CGRect(
+      x: leftPadding,
+      y: frame.size.height - 0.5,
+      width: frame.size.width - leftPadding,
+      height: 0.5)
     bottomLineLayer.backgroundColor = UIColor.lightGray.cgColor
   }
 
   open func reloadData() {
     titleLabel.font = .systemFont(ofSize: 15)
     titleLabel.text = title
+    titleLabel.numberOfLines = 0
 
     valueLabel.font = .systemFont(ofSize: 13, weight: .light)
     valueLabel.text = nil
@@ -93,32 +113,53 @@ open class JSONTableViewCell: UIView {
     valueLabel.textAlignment = .right
     valueLabel.minimumScaleFactor = 0.1
 
-    expandButton.isHidden = true
     expandStack.arrangedSubviews.forEach({ expandStack.removeArrangedSubview($0) })
     expandStack.arrangedSubviews.forEach({ $0.removeFromSuperview() })
     expandStack.isHidden = true
 
     switch data.type {
     case .dictionary, .array:
+      var index = 0
       for (key, value) in data {
+        // Update data
         let cell = JSONTableViewCell(frame: .zero)
         cell.translatesAutoresizingMaskIntoConstraints = false
         cell.title = key
         cell.data = value
         cell.reloadData()
+
+        // Make it expandable
         expandStack.addArrangedSubview(cell)
-        expandButton.isHidden = false
-        expandButton.translatesAutoresizingMaskIntoConstraints = false
-        expandButton.rightAnchor.constraint(equalTo: stackView.rightAnchor, constant: -8).isActive = true
+        expandButton.contentEdgeInsets.bottom = 8
         canExpand = true
+
+        // Remove value label
+        textStack.removeArrangedSubview(valueLabel)
+        valueLabel.removeFromSuperview()
+
+        // Check if last item
+        index += 1
+        if index == data.count {
+          stackViewBottomAnchor.constant = 0
+        }
       }
+
     default:
+      // Update data
       valueLabel.text = "\(data)"
       valueLabel.translatesAutoresizingMaskIntoConstraints = false
-      valueLabel.rightAnchor.constraint(equalTo: stackView.rightAnchor, constant: -8).isActive = true
+      valueLabel.rightAnchor.constraint(equalTo: stackView.rightAnchor, constant: -leftPadding).isActive = true
+      valueLabel.textAlignment = .right
+      textStack.distribution = .fillEqually
+
+      // Remove expand button
+      cellStack.removeArrangedSubview(expandButton)
+      expandButton.removeFromSuperview()
       canExpand = false
     }
   }
+
+  // MARK: Actions
 
   @IBAction func expandButtonDidPress(sender: UIButton) {
     isExpanded = !isExpanded
@@ -164,6 +205,8 @@ open class JSONTableView: UIView {
   public var stackView = UIStackView()
   public var data = JSON()
 
+  // MARK: Init
+
   public override init(frame: CGRect) {
     super.init(frame: frame)
     commonInit()
@@ -191,6 +234,8 @@ open class JSONTableView: UIView {
     stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
   }
 
+  // MARK: Lifecycle
+
   open func reloadData() {
     stackView.arrangedSubviews.forEach({ stackView.removeArrangedSubview($0) })
     stackView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
@@ -203,6 +248,8 @@ open class JSONTableView: UIView {
       cell.reloadData()
     }
   }
+
+  // MARK: Actions
 
   public func expandAll() {
     func exp(cell: JSONTableViewCell) {
