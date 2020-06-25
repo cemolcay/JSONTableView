@@ -37,6 +37,9 @@ open class JSONTableViewCell: UIView {
   public var leftPadding: CGFloat = 16
   public var verticalPadding: CGFloat = 16
 
+  public var defaultTextColor: UIColor = .black
+  public var invalidDataTextColor: UIColor = .red
+
   // MARK: Init
 
   public override init(frame: CGRect) {
@@ -105,6 +108,7 @@ open class JSONTableViewCell: UIView {
   open func reloadData() {
     titleLabel.font = .systemFont(ofSize: 15)
     titleLabel.text = title
+    titleLabel.textColor = defaultTextColor
     titleLabel.numberOfLines = 0
 
     valueLabel.font = .systemFont(ofSize: 13, weight: .light)
@@ -146,7 +150,9 @@ open class JSONTableViewCell: UIView {
 
     default:
       // Update data
-      valueLabel.text = "\(data)"
+      let value = isValid(data: "\(data)")
+      valueLabel.text = value.data
+      valueLabel.textColor = value.isValid ? defaultTextColor : invalidDataTextColor
       valueLabel.translatesAutoresizingMaskIntoConstraints = false
       valueLabel.rightAnchor.constraint(equalTo: stackView.rightAnchor, constant: -leftPadding).isActive = true
       valueLabel.textAlignment = .right
@@ -157,6 +163,25 @@ open class JSONTableViewCell: UIView {
       expandButton.removeFromSuperview()
       canExpand = false
     }
+  }
+
+  func isValid(data: String) -> (isValid: Bool, data: String) {
+    if data.first == "!" {
+      do {
+        let prntPattern = "\\(([^()]*)\\)"
+        let patternRange = NSRange(0 ..< data.count)
+        if let prntMatch = try NSRegularExpression(pattern: prntPattern, options: [])
+          .firstMatch(in: data, options: [], range: patternRange),
+          let rng = Range(prntMatch.range(at: 1), in: data) {
+          let arr = data[rng].split(separator: ",")
+          let val = String(arr[0].dropFirst())
+          return (false, val)
+        }
+      } catch {
+        return (false, data)
+      }
+    }
+    return (true, data)
   }
 
   // MARK: Actions
@@ -204,6 +229,7 @@ open class JSONTableView: UIView {
   public var scrollView = UIScrollView()
   public var stackView = UIStackView()
   public var data = JSON()
+  public var validator: DataValidator?
 
   // MARK: Init
 
@@ -239,6 +265,12 @@ open class JSONTableView: UIView {
   open func reloadData() {
     stackView.arrangedSubviews.forEach({ stackView.removeArrangedSubview($0) })
     stackView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
+
+    if let validator = validator,
+      let dict = data.dictionaryObject {
+      let validData = validator.validate(data: dict)
+      data = JSON(validData)
+    }
 
     for (key, value) in data {
       let cell = JSONTableViewCell(frame: .zero)

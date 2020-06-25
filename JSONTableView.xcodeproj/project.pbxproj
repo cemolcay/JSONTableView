@@ -14,6 +14,7 @@
 		535C630B2332216C007CBB46 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 535C63092332216C007CBB46 /* LaunchScreen.storyboard */; };
 		535C6313233222B3007CBB46 /* JSONTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535C6312233222B3007CBB46 /* JSONTableView.swift */; };
 		535C6317233373A2007CBB46 /* ditto.json in Resources */ = {isa = PBXBuildFile; fileRef = 535C6316233373A2007CBB46 /* ditto.json */; };
+		53BD37F02487E1B30012077D /* Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD37EF2487E1B30012077D /* Validation.swift */; };
 		AB86480046ECFDEB3A4015C7 /* Pods_JSONTableView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F1136AE77E0AC62F269D171 /* Pods_JSONTableView.framework */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 		535C630C2332216C007CBB46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		535C6312233222B3007CBB46 /* JSONTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTableView.swift; sourceTree = "<group>"; };
 		535C6316233373A2007CBB46 /* ditto.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ditto.json; sourceTree = "<group>"; };
+		53BD37EF2487E1B30012077D /* Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validation.swift; sourceTree = "<group>"; };
 		838A8A153736777A078E321C /* Pods-JSONTableView.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JSONTableView.release.xcconfig"; path = "Target Support Files/Pods-JSONTableView/Pods-JSONTableView.release.xcconfig"; sourceTree = "<group>"; };
 		92D191F5EB06A869B7A14379 /* Pods-JSONTableView.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JSONTableView.debug.xcconfig"; path = "Target Support Files/Pods-JSONTableView/Pods-JSONTableView.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +70,7 @@
 				535C63002332216B007CBB46 /* AppDelegate.swift */,
 				535C63022332216B007CBB46 /* ViewController.swift */,
 				535C6312233222B3007CBB46 /* JSONTableView.swift */,
+				53BD37EF2487E1B30012077D /* Validation.swift */,
 				535C63042332216B007CBB46 /* Main.storyboard */,
 				535C63072332216C007CBB46 /* Assets.xcassets */,
 				535C63092332216C007CBB46 /* LaunchScreen.storyboard */,
@@ -212,6 +215,7 @@
 			files = (
 				535C63032332216B007CBB46 /* ViewController.swift in Sources */,
 				535C6313233222B3007CBB46 /* JSONTableView.swift in Sources */,
+				53BD37F02487E1B30012077D /* Validation.swift in Sources */,
 				535C63012332216B007CBB46 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

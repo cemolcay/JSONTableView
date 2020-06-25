@@ -21,7 +21,12 @@ class ViewController: UIViewController {
       let json = try? JSON(data: data)
       else { return }
 
+    let rules = [
+      "height": "Int(>3)"
+    ]
+
     tableView?.data = json
+    tableView?.validator = DataValidator(rules: rules)
     tableView?.reloadData()
   }
 
