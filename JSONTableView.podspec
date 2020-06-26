@@ -129,7 +129,7 @@ tableView?.collapseAll()
   #  Not including the public_header_files will make all headers public.
   #
 
-  spec.source_files  = "JSONTableView/JSONTableView.swift"
+  spec.source_files  = "JSONTableView/JSONTableView.swift", "JSONTableView/Validation.swift"
   # spec.exclude_files = "Classes/Exclude"
 
   # spec.public_header_files = "Classes/**/*.h"
